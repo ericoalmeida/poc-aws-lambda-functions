@@ -7,7 +7,7 @@ import { GatewayApiStack } from '../lib/gateway-api-stack';
 const app = new cdk.App();
 
 const env: cdk.Environment = {
-  account: "646374137086",
+  account: "...",
   region: "us-east-1"
 }
 
