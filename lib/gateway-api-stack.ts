@@ -15,6 +15,7 @@ export class GatewayApiStack extends cdk.Stack {
     const logGroup = new LogGroup(this, "GatewayAPILogs");
     const api = new awsApiGateway.RestApi(this, "GatewayAPI", {
       restApiName: "GatewayAPI",
+      cloudWatchRole: true,
       deployOptions: {
         accessLogDestination: new awsApiGateway.LogGroupLogDestination(logGroup),
         accessLogFormat:awsApiGateway.AccessLogFormat.jsonWithStandardFields({
