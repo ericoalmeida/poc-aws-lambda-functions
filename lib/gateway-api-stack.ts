@@ -5,7 +5,8 @@ import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs'
 
 export interface GatewayApiStackProps extends cdk.StackProps {
-  productsFetchHandler: lambda.NodejsFunction
+  productsFetchHandler: lambda.NodejsFunction,
+  productsAdminHandler: lambda.NodejsFunction
 }
 
 export class GatewayApiStack extends cdk.Stack {
@@ -32,9 +33,16 @@ export class GatewayApiStack extends cdk.Stack {
       }
     });
 
+    const productsAdminIntegration = new awsApiGateway.LambdaIntegration(props.productsAdminHandler);
     const productsFetchIntegration = new awsApiGateway.LambdaIntegration(props.productsFetchHandler);
     
-    const productsResource = api.root.addResource("products");
-    productsResource.addMethod("GET", productsFetchIntegration)
+    const productsRootResource = api.root.addResource("products");
+    const productIdResource = productsRootResource.addResource("{id}");
+    
+    productsRootResource.addMethod("GET", productsFetchIntegration);
+    productsRootResource.addMethod("POST", productsAdminIntegration);
+    productIdResource.addMethod("GET", productsFetchIntegration);
+    productIdResource.addMethod("PUT", productsAdminIntegration);
+    productIdResource.addMethod("DELETE", productsAdminIntegration);
   }
 }

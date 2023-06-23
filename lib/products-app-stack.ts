@@ -7,6 +7,7 @@ import { Construct } from 'constructs'
 //Class to crate aws resources with cloud (stack)
 export class ProductsAppStack extends cdk.Stack {
   public readonly productsFetchHandler: lambda.NodejsFunction
+  public readonly productsAdminHandler: lambda.NodejsFunction
   public readonly productsDDB: dynamodb.Table
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps){
@@ -41,7 +42,24 @@ export class ProductsAppStack extends cdk.Stack {
       }
     });
 
+    // Creating a lambda function resource
+    this.productsAdminHandler = new lambda.NodejsFunction(this, "ProductsAdminFunction", {
+      functionName: "ProductsAdminFunction",
+      entry: "src/lambda/products/products-admin-function.ts",
+      handler: "handler",
+      memorySize: 128,
+      timeout: cdk.Duration.seconds(5),
+      bundling: {
+        minify: true,
+        sourceMap: false
+      },
+      environment: {
+        PRODUCTS_TABLE_NAME: this.productsDDB.tableName
+      }
+    });
+
     // Set permissions
     this.productsDDB.grantReadData(this.productsFetchHandler);
+    this.productsDDB.grantWriteData(this.productsAdminHandler);
   }
 }

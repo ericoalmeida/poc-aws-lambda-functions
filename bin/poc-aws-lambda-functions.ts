@@ -20,6 +20,7 @@ const productAppStack = new ProductsAppStack(app, "ProductsApp", { tags, env });
 
 const gatewayApiStack = new GatewayApiStack(app, "GatewayApi", {
   productsFetchHandler: productAppStack.productsFetchHandler,
+  productsAdminHandler: productAppStack.productsAdminHandler,
   tags,
   env
 });
