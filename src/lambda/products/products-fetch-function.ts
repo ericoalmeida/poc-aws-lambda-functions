@@ -2,35 +2,37 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda
 
 const PRODUCTS_FETCH_HTTP_METHOD = "GET"
 const PRODUCTS_RESOURCE = "/products"
-
-function checkResourceValid(resource: string, httpMethod: string): boolean {
-  return resource === PRODUCTS_RESOURCE && PRODUCTS_FETCH_HTTP_METHOD === httpMethod
-}
+const PRODUCTS_RESOURCE_ID = "/products/{id}"
 
 export async function handler(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult>{
-  const { resource, httpMethod, requestContext } = event
+  const { resource, httpMethod, requestContext, pathParameters } = event
   const { awsRequestId } = context // "context" contains information about lambda function execution
   const { requestId } = requestContext // "requestContext" contains information about request
 
-  const resourceValid = checkResourceValid(resource, httpMethod)
+  if (httpMethod === PRODUCTS_FETCH_HTTP_METHOD){
+    if(resource === PRODUCTS_RESOURCE){
+      console.log(`GET: ${ resource }`);
+      console.log(`RequestID: ${ requestId }, Lambda RequestID: ${ awsRequestId }`);
 
-  if(resourceValid){
-    console.log(`${httpMethod} ${resource}`);
-    console.log(`RequestID: ${requestId}`);
-    console.log(`Lambda RequestID: ${awsRequestId}`);
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "GET products"
-      })
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ message: "GET products" })
+      }
     }
+  
+    if(resource === PRODUCTS_RESOURCE_ID){
+      console.log(`GET: /products/${ pathParameters!.id }`);
+      console.log(`RequestID: ${ requestId }, Lambda RequestID: ${ awsRequestId }`);
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ message: "GET products by ID" })
+      }
+    }  
   }
 
   return {
     statusCode: 400,
-    body: JSON.stringify({
-      message: "BAD REQUEST"
-    })
+    body: JSON.stringify({message: "BAD REQUEST"})
   }
 }
