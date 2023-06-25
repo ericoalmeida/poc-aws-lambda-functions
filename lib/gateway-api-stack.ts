@@ -1,17 +1,17 @@
-import * as cdk from 'aws-cdk-lib'
-import * as awsApiGateway from 'aws-cdk-lib/aws-apigateway';
-import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
-import { LogGroup } from 'aws-cdk-lib/aws-logs';
-import { Construct } from 'constructs'
+import * as cdk from "aws-cdk-lib";
+import * as awsApiGateway from "aws-cdk-lib/aws-apigateway";
+import * as lambda from "aws-cdk-lib/aws-lambda-nodejs";
+import { LogGroup } from "aws-cdk-lib/aws-logs";
+import { Construct } from "constructs";
 
 export interface GatewayApiStackProps extends cdk.StackProps {
-  productsFetchHandler: lambda.NodejsFunction,
-  productsAdminHandler: lambda.NodejsFunction
-  productsListingHandler: lambda.NodejsFunction
+  findProductByIDHandler: lambda.NodejsFunction;
+  productsAdminHandler: lambda.NodejsFunction;
+  productsListingHandler: lambda.NodejsFunction;
 }
 
 export class GatewayApiStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: GatewayApiStackProps){
+  constructor(scope: Construct, id: string, props: GatewayApiStackProps) {
     super(scope, id, props);
 
     const logGroup = new LogGroup(this, "GatewayAPILogs");
@@ -19,8 +19,10 @@ export class GatewayApiStack extends cdk.Stack {
       restApiName: "GatewayAPI",
       cloudWatchRole: true,
       deployOptions: {
-        accessLogDestination: new awsApiGateway.LogGroupLogDestination(logGroup),
-        accessLogFormat:awsApiGateway.AccessLogFormat.jsonWithStandardFields({
+        accessLogDestination: new awsApiGateway.LogGroupLogDestination(
+          logGroup
+        ),
+        accessLogFormat: awsApiGateway.AccessLogFormat.jsonWithStandardFields({
           httpMethod: true,
           ip: true,
           protocol: true,
@@ -29,22 +31,29 @@ export class GatewayApiStack extends cdk.Stack {
           responseLength: true,
           status: true,
           caller: true,
-          user: true
-        })
-      }
+          user: true,
+        }),
+      },
     });
 
-    const productsAdminIntegration = new awsApiGateway.LambdaIntegration(props.productsAdminHandler);
-    const productsFetchIntegration = new awsApiGateway.LambdaIntegration(props.productsFetchHandler);
-    const productsListingIntegration = new awsApiGateway.LambdaIntegration(props.productsListingHandler);
-    
+    const productsAdminIntegration = new awsApiGateway.LambdaIntegration(
+      props.productsAdminHandler
+    );
+    const findProductByIDIntegration = new awsApiGateway.LambdaIntegration(
+      props.findProductByIDHandler
+    );
+    const productsListingIntegration = new awsApiGateway.LambdaIntegration(
+      props.productsListingHandler
+    );
+
     const productsRootResource = api.root.addResource("products");
-    const productIdResource = productsRootResource.addResource("{id}");
-    
+    const productResource = productsRootResource.addResource("{id}");
+
     productsRootResource.addMethod("GET", productsListingIntegration);
     productsRootResource.addMethod("POST", productsAdminIntegration);
-    productIdResource.addMethod("GET", productsFetchIntegration);
-    productIdResource.addMethod("PUT", productsAdminIntegration);
-    productIdResource.addMethod("DELETE", productsAdminIntegration);
+
+    productResource.addMethod("GET", findProductByIDIntegration);
+    productResource.addMethod("PUT", productsAdminIntegration);
+    productResource.addMethod("DELETE", productsAdminIntegration);
   }
 }

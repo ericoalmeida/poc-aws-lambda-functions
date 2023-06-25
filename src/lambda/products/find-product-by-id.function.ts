@@ -4,28 +4,31 @@ import {
   Context,
 } from "aws-lambda";
 
-const PRODUCTS_LISTING_RESOURCE = "/products";
+const PRODUCT_FINDING_RESOURCE = "/products/{id}";
 
-function checkResourceIsValid(httpMethod: string, resource: string): boolean {
-  return httpMethod === "GET" && resource === PRODUCTS_LISTING_RESOURCE;
+function checkResourceIsInvalid(httpMethod: string, resource: string): boolean {
+  return httpMethod === "GET" && resource === PRODUCT_FINDING_RESOURCE;
 }
 
 export async function handler(
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> {
-  const { httpMethod, resource, requestContext } = event;
+  const { httpMethod, resource, pathParameters, requestContext } = event;
   const { requestId } = requestContext;
   const { awsRequestId } = context;
 
-  const resourceIsValid = checkResourceIsValid(httpMethod, resource);
+  const resourceIsValid = checkResourceIsInvalid(httpMethod, resource);
 
   if (resourceIsValid) {
+    const productId = pathParameters!.id;
+
+    console.log(`GET: product by ID "${productId}"`);
     console.log(`RequestID: ${requestId}, Lambda RequestID: ${awsRequestId}`);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "GET: list all products" }),
+      body: JSON.stringify({ message: "Find product by ID" }),
     };
   }
 

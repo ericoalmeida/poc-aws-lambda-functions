@@ -5,11 +5,16 @@ import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 
 import { createProductsListingLambdaFunction } from './factories/create-products-listing-lambda-function'
+import { createFindProductByIDLambdaFunction } from './factories/create-find-product-by-id.lambda-function'
+
+// export interface ProductResources {
+//   findById: lambda.NodejsFunction
+// }
 
 //Class to crate aws resources with cloud (stack)
 export class ProductsAppStack extends cdk.Stack {
   public readonly productsListingHandler: lambda.NodejsFunction
-  public readonly productsFetchHandler: lambda.NodejsFunction
+  public readonly findProductByIDHandler: lambda.NodejsFunction
   public readonly productsAdminHandler: lambda.NodejsFunction
   public readonly productsDDB: dynamodb.Table
 
@@ -34,19 +39,8 @@ export class ProductsAppStack extends cdk.Stack {
     });
     
     // Creating a lambda function resource
-    this.productsFetchHandler = new lambda.NodejsFunction(this, "ProductsFetchFunction", {
-      functionName: "ProductsFetchFunction",
-      entry: "src/lambda/products/products-fetch-function.ts",
-      handler: "handler",
-      memorySize: 128,
-      timeout: cdk.Duration.seconds(5),
-      bundling: {
-        minify: true,
-        sourceMap: false,
-      },
-      environment: {
-        PRODUCTS_TABLE_NAME: this.productsDDB.tableName
-      }
+    this.findProductByIDHandler = createFindProductByIDLambdaFunction(this, {
+      PRODUCTS_TABLE_NAME: this.productsDDB.tableName
     });
 
     // Creating a lambda function resource
@@ -66,7 +60,8 @@ export class ProductsAppStack extends cdk.Stack {
     });
 
     // Set permissions
-    this.productsDDB.grantReadData(this.productsFetchHandler);
+    this.productsDDB.grantReadData(this.findProductByIDHandler);
+    this.productsDDB.grantReadData(this.productsListingHandler);
     this.productsDDB.grantWriteData(this.productsAdminHandler);
   }
 }
