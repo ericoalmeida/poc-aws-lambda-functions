@@ -7,6 +7,7 @@ import { Construct } from 'constructs'
 import { createFindAllProductsLambdaFunction } from './factories/create-find-all-products.lambda-function'
 import { createFindProductByIDLambdaFunction } from './factories/create-find-product-by-id.lambda-function'
 import { createProductLambdaFactory } from './factories/create-product.lambda.factory'
+import { productTableDynamoDBFactory } from './factories/product-table.dynamodb.factory'
 
 // export interface ProductResources {
 //   findById: lambda.NodejsFunction
@@ -23,29 +24,15 @@ export class ProductsAppStack extends cdk.Stack {
     super(scope, id, props);
 
     // Creating a dynamoDB table resource
-    this.productsDDB = new dynamodb.Table(this, "ProductsDDB", {
-      tableName: "products",
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      partitionKey: {
-        name: "id",
-        type: dynamodb.AttributeType.STRING
-      },
-      billingMode: dynamodb.BillingMode.PROVISIONED,
-      readCapacity: 1,
-      writeCapacity: 1,
-    });
+    this.productsDDB = productTableDynamoDBFactory(this);
 
     // Creating a lambda function resource
     this.findAllProductsHandler = createFindAllProductsLambdaFunction(this, {
       PRODUCTS_TABLE_NAME: this.productsDDB.tableName
     });
-    
-    // Creating a lambda function resource
     this.findProductByIDHandler = createFindProductByIDLambdaFunction(this, {
       PRODUCTS_TABLE_NAME: this.productsDDB.tableName
     });
-
-    // Creating a lambda function resource
     this.createProductHandler = createProductLambdaFactory(this, {
       PRODUCTS_TABLE_NAME: this.productsDDB.tableName
     });
