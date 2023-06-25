@@ -5,9 +5,9 @@ import { LogGroup } from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
 export interface GatewayApiStackProps extends cdk.StackProps {
+  findAllProductsHandler: lambda.NodejsFunction;
   findProductByIDHandler: lambda.NodejsFunction;
   productsAdminHandler: lambda.NodejsFunction;
-  productsListingHandler: lambda.NodejsFunction;
 }
 
 export class GatewayApiStack extends cdk.Stack {
@@ -42,14 +42,14 @@ export class GatewayApiStack extends cdk.Stack {
     const findProductByIDIntegration = new awsApiGateway.LambdaIntegration(
       props.findProductByIDHandler
     );
-    const productsListingIntegration = new awsApiGateway.LambdaIntegration(
-      props.productsListingHandler
+    const findAllProductsIntegration = new awsApiGateway.LambdaIntegration(
+      props.findAllProductsHandler
     );
 
     const productsRootResource = api.root.addResource("products");
     const productResource = productsRootResource.addResource("{id}");
 
-    productsRootResource.addMethod("GET", productsListingIntegration);
+    productsRootResource.addMethod("GET", findAllProductsIntegration);
     productsRootResource.addMethod("POST", productsAdminIntegration);
 
     productResource.addMethod("GET", findProductByIDIntegration);

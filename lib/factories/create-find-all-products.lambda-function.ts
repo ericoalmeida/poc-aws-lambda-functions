@@ -6,13 +6,13 @@ interface Environment {
   [key: string]: string;
 }
 
-export function createProductsListingLambdaFunction(
+export function createFindAllProductsLambdaFunction(
   scope: Construct,
   environment: Environment
 ): NodejsFunction {
   return new NodejsFunction(scope, "ProductsListingFunction", {
     functionName: "ProductsListingFunction",
-    entry: "src/lambda/products/products-listing-function.ts",
+    entry: "src/lambda/products/find-all-products.function.ts",
     handler: "handler",
     memorySize: 128,
     timeout: Duration.seconds(5),
