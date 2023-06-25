@@ -7,7 +7,7 @@ import { Construct } from "constructs";
 export interface GatewayApiStackProps extends cdk.StackProps {
   findAllProductsHandler: lambda.NodejsFunction;
   findProductByIDHandler: lambda.NodejsFunction;
-  productsAdminHandler: lambda.NodejsFunction;
+  createProductHandler: lambda.NodejsFunction;
 }
 
 export class GatewayApiStack extends cdk.Stack {
@@ -36,8 +36,8 @@ export class GatewayApiStack extends cdk.Stack {
       },
     });
 
-    const productsAdminIntegration = new awsApiGateway.LambdaIntegration(
-      props.productsAdminHandler
+    const createProductIntegration = new awsApiGateway.LambdaIntegration(
+      props.createProductHandler
     );
     const findProductByIDIntegration = new awsApiGateway.LambdaIntegration(
       props.findProductByIDHandler
@@ -50,10 +50,10 @@ export class GatewayApiStack extends cdk.Stack {
     const productResource = productsRootResource.addResource("{id}");
 
     productsRootResource.addMethod("GET", findAllProductsIntegration);
-    productsRootResource.addMethod("POST", productsAdminIntegration);
+    productsRootResource.addMethod("POST", createProductIntegration);
 
     productResource.addMethod("GET", findProductByIDIntegration);
-    productResource.addMethod("PUT", productsAdminIntegration);
-    productResource.addMethod("DELETE", productsAdminIntegration);
+    productResource.addMethod("PUT", createProductIntegration);
+    productResource.addMethod("DELETE", createProductIntegration);
   }
 }

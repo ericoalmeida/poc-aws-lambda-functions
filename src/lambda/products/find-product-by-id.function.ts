@@ -23,7 +23,7 @@ export async function handler(
   if (resourceIsValid) {
     const productId = pathParameters!.id;
 
-    console.log(`GET: product by ID "${productId}"`);
+    console.log(`GET: /products/"${productId}"`);
     console.log(`RequestID: ${requestId}, Lambda RequestID: ${awsRequestId}`);
 
     return {

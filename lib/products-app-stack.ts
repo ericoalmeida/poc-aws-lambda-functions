@@ -6,6 +6,7 @@ import { Construct } from 'constructs'
 
 import { createFindAllProductsLambdaFunction } from './factories/create-find-all-products.lambda-function'
 import { createFindProductByIDLambdaFunction } from './factories/create-find-product-by-id.lambda-function'
+import { createProductLambdaFactory } from './factories/create-product.lambda.factory'
 
 // export interface ProductResources {
 //   findById: lambda.NodejsFunction
@@ -15,7 +16,7 @@ import { createFindProductByIDLambdaFunction } from './factories/create-find-pro
 export class ProductsAppStack extends cdk.Stack {
   public readonly findAllProductsHandler: lambda.NodejsFunction
   public readonly findProductByIDHandler: lambda.NodejsFunction
-  public readonly productsAdminHandler: lambda.NodejsFunction
+  public readonly createProductHandler: lambda.NodejsFunction
   public readonly productsDDB: dynamodb.Table
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps){
@@ -45,24 +46,13 @@ export class ProductsAppStack extends cdk.Stack {
     });
 
     // Creating a lambda function resource
-    this.productsAdminHandler = new lambda.NodejsFunction(this, "ProductsAdminFunction", {
-      functionName: "ProductsAdminFunction",
-      entry: "src/lambda/products/products-admin-function.ts",
-      handler: "handler",
-      memorySize: 128,
-      timeout: cdk.Duration.seconds(5),
-      bundling: {
-        minify: true,
-        sourceMap: false
-      },
-      environment: {
-        PRODUCTS_TABLE_NAME: this.productsDDB.tableName
-      }
+    this.createProductHandler = createProductLambdaFactory(this, {
+      PRODUCTS_TABLE_NAME: this.productsDDB.tableName
     });
 
     // Set permissions
     this.productsDDB.grantReadData(this.findProductByIDHandler);
     this.productsDDB.grantReadData(this.findAllProductsHandler);
-    this.productsDDB.grantWriteData(this.productsAdminHandler);
+    this.productsDDB.grantWriteData(this.createProductHandler);
   }
 }

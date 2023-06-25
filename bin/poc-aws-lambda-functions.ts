@@ -21,7 +21,7 @@ const productAppStack = new ProductsAppStack(app, "ProductsApp", { tags, env });
 const gatewayApiStack = new GatewayApiStack(app, "GatewayApi", {
   findAllProductsHandler: productAppStack.findAllProductsHandler,
   findProductByIDHandler: productAppStack.findProductByIDHandler,
-  productsAdminHandler: productAppStack.productsAdminHandler,
+  createProductHandler: productAppStack.createProductHandler,
   tags,
   env
 });
