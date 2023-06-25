@@ -1,21 +1,18 @@
 import * as cdk from "aws-cdk-lib";
 import * as awsApiGateway from "aws-cdk-lib/aws-apigateway";
-import * as lambda from "aws-cdk-lib/aws-lambda-nodejs";
 import { LogGroup } from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
-export interface GatewayApiStackProps extends cdk.StackProps {
-  findAllProductsHandler: lambda.NodejsFunction;
-  findProductByIDHandler: lambda.NodejsFunction;
-  createProductHandler: lambda.NodejsFunction;
-}
+import { ProductResources } from "./products-app-stack";
 
 export class GatewayApiStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: GatewayApiStackProps) {
+  private readonly api: awsApiGateway.RestApi;
+
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     const logGroup = new LogGroup(this, "GatewayAPILogs");
-    const api = new awsApiGateway.RestApi(this, "GatewayAPI", {
+    this.api = new awsApiGateway.RestApi(this, "GatewayAPI", {
       restApiName: "GatewayAPI",
       cloudWatchRole: true,
       deployOptions: {
@@ -35,25 +32,26 @@ export class GatewayApiStack extends cdk.Stack {
         }),
       },
     });
+  }
 
-    const createProductIntegration = new awsApiGateway.LambdaIntegration(
-      props.createProductHandler
-    );
-    const findProductByIDIntegration = new awsApiGateway.LambdaIntegration(
-      props.findProductByIDHandler
-    );
-    const findAllProductsIntegration = new awsApiGateway.LambdaIntegration(
-      props.findAllProductsHandler
+  public createProductAPIResources(resources: ProductResources): void {
+    const createProductLambdaIntegration = new awsApiGateway.LambdaIntegration(
+      resources.create
     );
 
-    const productsRootResource = api.root.addResource("products");
-    const productResource = productsRootResource.addResource("{id}");
+    const findAllProductsLambdaIntegration = new awsApiGateway.LambdaIntegration(
+      resources.findAll
+    );
 
-    productsRootResource.addMethod("GET", findAllProductsIntegration);
-    productsRootResource.addMethod("POST", createProductIntegration);
+    const findByIdLambdaIntegration = new awsApiGateway.LambdaIntegration(
+      resources.findById
+    );
 
-    productResource.addMethod("GET", findProductByIDIntegration);
-    productResource.addMethod("PUT", createProductIntegration);
-    productResource.addMethod("DELETE", createProductIntegration);
+    const rootResource = this.api.root.addResource("products"); // /products
+    rootResource.addMethod("GET", findAllProductsLambdaIntegration);
+    rootResource.addMethod("POST", createProductLambdaIntegration);
+    
+    const paramIdResource = rootResource.addResource("{id}"); // /products/{id}
+    paramIdResource.addMethod("GET", findByIdLambdaIntegration);
   }
 }

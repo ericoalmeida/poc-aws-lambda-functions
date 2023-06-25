@@ -1,29 +1,25 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { ProductsAppStack } from '../lib/products-app-stack';
-import { GatewayApiStack } from '../lib/gateway-api-stack';
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+
+import { ProductsAppStack } from "../lib/products-app-stack";
+import { GatewayApiStack } from "../lib/gateway-api-stack";
 
 const app = new cdk.App();
 
 const env: cdk.Environment = {
   account: "...",
-  region: "us-east-1"
-}
+  region: "us-east-1",
+};
 
 const tags = {
   cost: "PocAWSLambdaFunctions",
-  team: "AlmeidaTeam"
-}
+  team: "AlmeidaTeam",
+};
 
 const productAppStack = new ProductsAppStack(app, "ProductsApp", { tags, env });
+const gatewayApiStack = new GatewayApiStack(app, "GatewayApi", { tags, env });
 
-const gatewayApiStack = new GatewayApiStack(app, "GatewayApi", {
-  findAllProductsHandler: productAppStack.findAllProductsHandler,
-  findProductByIDHandler: productAppStack.findProductByIDHandler,
-  createProductHandler: productAppStack.createProductHandler,
-  tags,
-  env
-});
+gatewayApiStack.createProductAPIResources(productAppStack.resources);
 
 gatewayApiStack.addDependency(productAppStack);
