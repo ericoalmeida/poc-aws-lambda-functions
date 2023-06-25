@@ -7,6 +7,7 @@ import { Construct } from 'constructs'
 export interface GatewayApiStackProps extends cdk.StackProps {
   productsFetchHandler: lambda.NodejsFunction,
   productsAdminHandler: lambda.NodejsFunction
+  productsListingHandler: lambda.NodejsFunction
 }
 
 export class GatewayApiStack extends cdk.Stack {
@@ -35,11 +36,12 @@ export class GatewayApiStack extends cdk.Stack {
 
     const productsAdminIntegration = new awsApiGateway.LambdaIntegration(props.productsAdminHandler);
     const productsFetchIntegration = new awsApiGateway.LambdaIntegration(props.productsFetchHandler);
+    const productsListingIntegration = new awsApiGateway.LambdaIntegration(props.productsListingHandler);
     
     const productsRootResource = api.root.addResource("products");
     const productIdResource = productsRootResource.addResource("{id}");
     
-    productsRootResource.addMethod("GET", productsFetchIntegration);
+    productsRootResource.addMethod("GET", productsListingIntegration);
     productsRootResource.addMethod("POST", productsAdminIntegration);
     productIdResource.addMethod("GET", productsFetchIntegration);
     productIdResource.addMethod("PUT", productsAdminIntegration);

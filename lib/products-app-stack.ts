@@ -4,8 +4,11 @@ import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 
+import { createProductsListingLambdaFunction } from './factories/create-products-listing-lambda-function'
+
 //Class to crate aws resources with cloud (stack)
 export class ProductsAppStack extends cdk.Stack {
+  public readonly productsListingHandler: lambda.NodejsFunction
   public readonly productsFetchHandler: lambda.NodejsFunction
   public readonly productsAdminHandler: lambda.NodejsFunction
   public readonly productsDDB: dynamodb.Table
@@ -24,6 +27,10 @@ export class ProductsAppStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PROVISIONED,
       readCapacity: 1,
       writeCapacity: 1,
+    });
+
+    this.productsListingHandler = createProductsListingLambdaFunction(this, {
+      PRODUCTS_TABLE_NAME: this.productsDDB.tableName
     });
     
     // Creating a lambda function resource
