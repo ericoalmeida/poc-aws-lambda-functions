@@ -6,7 +6,7 @@ interface Environment {
   [key: string]: string;
 }
 
-export function createFindAllProductsLambdaFunction(
+export function findAllProductsLambdaFactory(
   scope: Construct,
   environment: Environment
 ): NodejsFunction {
