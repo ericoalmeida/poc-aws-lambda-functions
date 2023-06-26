@@ -1,10 +1,10 @@
-import * as awsLambda from "aws-lambda";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda-nodejs";
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
 import { createProductLambdaFactory } from "./factories/create-product.lambda.factory";
+import { deleteProductByIDLambdaFactory } from "./factories/delete-product.lambda.factory";
 import { findAllProductsLambdaFactory } from "./factories/find-all-products.lambda.factory";
 import { findProductByIDLambdaFactory } from "./factories/find-product-by-id.lambda.factory";
 import { productTableDynamoDBFactory } from "./factories/product-table.dynamodb.factory";
@@ -12,6 +12,7 @@ import { updateProductByIDLambdaFactory } from "./factories/update-product.lambd
 
 export interface ProductResources {
   create: lambda.NodejsFunction;
+  deleteById: lambda.NodejsFunction;
   findAll: lambda.NodejsFunction;
   findById: lambda.NodejsFunction;
   updateById: lambda.NodejsFunction;
@@ -33,6 +34,9 @@ export class ProductsAppStack extends cdk.Stack {
     this.resources.create = createProductLambdaFactory(this, {
       PRODUCTS_TABLE_NAME: this.table.tableName,
     });
+    this.resources.deleteById = deleteProductByIDLambdaFactory(this, {
+      PRODUCTS_TABLE_NAME: this.table.tableName,
+    });
     this.resources.findAll = findAllProductsLambdaFactory(this, {
       PRODUCTS_TABLE_NAME: this.table.tableName,
     });
@@ -44,8 +48,10 @@ export class ProductsAppStack extends cdk.Stack {
     });
 
     // Set permissions
+    this.table.grantWriteData(this.resources.create);
     this.table.grantReadData(this.resources.findAll);
     this.table.grantReadData(this.resources.findById);
-    this.table.grantWriteData(this.resources.create);
+    this.table.grantWriteData(this.resources.updateById);
+    this.table.grantWriteData(this.resources.deleteById);
   }
 }

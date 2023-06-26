@@ -45,6 +45,9 @@ export class GatewayApiStack extends cdk.Stack {
     const updateByIdLambdaIntegration = new awsApiGateway.LambdaIntegration(
       resources.updateById
     );
+    const deleteByIdLambdaIntegration = new awsApiGateway.LambdaIntegration(
+      resources.deleteById
+    );
 
     const rootResource = this.api.root.addResource("products"); // /products
     rootResource.addMethod("GET", findAllProductsLambdaIntegration);
@@ -53,5 +56,6 @@ export class GatewayApiStack extends cdk.Stack {
     const paramIdResource = rootResource.addResource("{id}"); // /products/{id}
     paramIdResource.addMethod("GET", findByIdLambdaIntegration);
     paramIdResource.addMethod("PUT", updateByIdLambdaIntegration);
+    paramIdResource.addMethod("DELETE", deleteByIdLambdaIntegration);
   }
 }
