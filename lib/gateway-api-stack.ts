@@ -38,20 +38,20 @@ export class GatewayApiStack extends cdk.Stack {
     const createProductLambdaIntegration = new awsApiGateway.LambdaIntegration(
       resources.create
     );
-
-    const findAllProductsLambdaIntegration = new awsApiGateway.LambdaIntegration(
-      resources.findAll
-    );
-
+    const findAllProductsLambdaIntegration = new awsApiGateway.LambdaIntegration(resources.findAll);
     const findByIdLambdaIntegration = new awsApiGateway.LambdaIntegration(
       resources.findById
+    );
+    const updateByIdLambdaIntegration = new awsApiGateway.LambdaIntegration(
+      resources.updateById
     );
 
     const rootResource = this.api.root.addResource("products"); // /products
     rootResource.addMethod("GET", findAllProductsLambdaIntegration);
     rootResource.addMethod("POST", createProductLambdaIntegration);
-    
+
     const paramIdResource = rootResource.addResource("{id}"); // /products/{id}
     paramIdResource.addMethod("GET", findByIdLambdaIntegration);
+    paramIdResource.addMethod("PUT", updateByIdLambdaIntegration);
   }
 }

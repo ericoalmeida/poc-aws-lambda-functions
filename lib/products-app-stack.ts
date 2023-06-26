@@ -8,11 +8,13 @@ import { createProductLambdaFactory } from "./factories/create-product.lambda.fa
 import { findAllProductsLambdaFactory } from "./factories/find-all-products.lambda.factory";
 import { findProductByIDLambdaFactory } from "./factories/find-product-by-id.lambda.factory";
 import { productTableDynamoDBFactory } from "./factories/product-table.dynamodb.factory";
+import { updateProductByIDLambdaFactory } from "./factories/update-product.lambda.factory";
 
 export interface ProductResources {
-  findById: lambda.NodejsFunction;
-  findAll: lambda.NodejsFunction;
   create: lambda.NodejsFunction;
+  findAll: lambda.NodejsFunction;
+  findById: lambda.NodejsFunction;
+  updateById: lambda.NodejsFunction;
 }
 
 //Class to crate aws resources with cloud (stack)
@@ -35,6 +37,9 @@ export class ProductsAppStack extends cdk.Stack {
       PRODUCTS_TABLE_NAME: this.table.tableName,
     });
     this.resources.findById = findProductByIDLambdaFactory(this, {
+      PRODUCTS_TABLE_NAME: this.table.tableName,
+    });
+    this.resources.updateById = updateProductByIDLambdaFactory(this, {
       PRODUCTS_TABLE_NAME: this.table.tableName,
     });
 
