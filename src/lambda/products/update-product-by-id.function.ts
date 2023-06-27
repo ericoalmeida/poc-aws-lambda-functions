@@ -4,7 +4,7 @@ import {
   Context,
 } from "aws-lambda";
 
-const UPDATE_PRODUCT_RESOURCES = "/products/{id}";
+const UPDATE_PRODUCT_RESOURCES = "/product/{id}";
 
 function checkResourceIsValid(httpMethod: string, resource: string): boolean {
   return httpMethod === "PUT" && resource === UPDATE_PRODUCT_RESOURCES;

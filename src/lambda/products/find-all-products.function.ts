@@ -4,7 +4,7 @@ import {
   Context,
 } from "aws-lambda";
 
-const PRODUCTS_LISTING_RESOURCE = "/products";
+const PRODUCTS_LISTING_RESOURCE = "/product";
 
 function checkResourceIsValid(httpMethod: string, resource: string): boolean {
   return httpMethod === "GET" && resource === PRODUCTS_LISTING_RESOURCE;

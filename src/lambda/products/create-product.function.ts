@@ -4,7 +4,7 @@ import {
   Context,
 } from "aws-lambda";
 
-const CREATE_PRODUCT_RESOURCE = "/products";
+const CREATE_PRODUCT_RESOURCE = "/product";
 
 function checkResourceIsValid(httpMethod: string, resource: string): boolean {
   return httpMethod === "POST" && resource === CREATE_PRODUCT_RESOURCE;

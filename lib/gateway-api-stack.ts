@@ -49,7 +49,7 @@ export class GatewayApiStack extends cdk.Stack {
       resources.deleteById
     );
 
-    const rootResource = this.api.root.addResource("products"); // /products
+    const rootResource = this.api.root.addResource("product"); // /products
     rootResource.addMethod("GET", findAllProductsLambdaIntegration);
     rootResource.addMethod("POST", createProductLambdaIntegration);
 
