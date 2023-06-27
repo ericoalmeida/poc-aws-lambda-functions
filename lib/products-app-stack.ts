@@ -31,21 +31,23 @@ export class ProductsAppStack extends cdk.Stack {
     this.table = productTableDynamoDBFactory(this);
 
     // Creating a lambda function resource
-    this.resources.create = createProductLambdaFactory(this, {
-      PRODUCTS_TABLE_NAME: this.table.tableName,
-    });
-    this.resources.deleteById = deleteProductByIDLambdaFactory(this, {
-      PRODUCTS_TABLE_NAME: this.table.tableName,
-    });
-    this.resources.findAll = findAllProductsLambdaFactory(this, {
-      PRODUCTS_TABLE_NAME: this.table.tableName,
-    });
-    this.resources.findById = findProductByIDLambdaFactory(this, {
-      PRODUCTS_TABLE_NAME: this.table.tableName,
-    });
-    this.resources.updateById = updateProductByIDLambdaFactory(this, {
-      PRODUCTS_TABLE_NAME: this.table.tableName,
-    });
+    this.resources = {
+      create: createProductLambdaFactory(this, {
+        PRODUCTS_TABLE_NAME: this.table.tableName,
+      }),
+      deleteById: deleteProductByIDLambdaFactory(this, {
+        PRODUCTS_TABLE_NAME: this.table.tableName,
+      }),
+      findAll: findAllProductsLambdaFactory(this, {
+        PRODUCTS_TABLE_NAME: this.table.tableName,
+      }),
+      findById: findProductByIDLambdaFactory(this, {
+        PRODUCTS_TABLE_NAME: this.table.tableName,
+      }),
+      updateById: updateProductByIDLambdaFactory(this, {
+        PRODUCTS_TABLE_NAME: this.table.tableName,
+      }),
+    };
 
     // Set permissions
     this.table.grantWriteData(this.resources.create);
