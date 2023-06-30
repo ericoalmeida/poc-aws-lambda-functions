@@ -1,4 +1,5 @@
 import { Duration } from "aws-cdk-lib";
+import { ILayerVersion } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 
@@ -8,7 +9,8 @@ interface Environment {
 
 export function deleteProductByIDLambdaFactory(
   scope: Construct,
-  environment: Environment
+  environment: Environment,
+  layers: ILayerVersion[]
 ): NodejsFunction {
   return new NodejsFunction(scope, "DeleteProductByID", {
     functionName: "DeleteProductByID",
@@ -21,5 +23,6 @@ export function deleteProductByIDLambdaFactory(
       sourceMap: false,
     },
     environment,
+    layers,
   });
 }

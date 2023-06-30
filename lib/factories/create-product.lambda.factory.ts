@@ -1,4 +1,5 @@
 import { Duration } from "aws-cdk-lib";
+import { ILayerVersion } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 
@@ -8,7 +9,8 @@ interface Environment {
 
 export function createProductLambdaFactory(
   scope: Construct,
-  environment: Environment
+  environment: Environment,
+  layers: ILayerVersion[]
 ): NodejsFunction {
   return new NodejsFunction(scope, "CreateProduct", {
     functionName: "CreateProduct",
@@ -20,6 +22,7 @@ export function createProductLambdaFactory(
       minify: true,
       sourceMap: false,
     },
-    environment
-  })
+    environment,
+    layers,
+  });
 }

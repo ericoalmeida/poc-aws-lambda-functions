@@ -9,6 +9,8 @@ import { findAllProductsLambdaFactory } from "./factories/find-all-products.lamb
 import { findProductByIDLambdaFactory } from "./factories/find-product-by-id.lambda.factory";
 import { productTableDynamoDBFactory } from "./factories/product-table.dynamodb.factory";
 import { updateProductByIDLambdaFactory } from "./factories/update-product.lambda.factory";
+import { StringParameter } from "aws-cdk-lib/aws-ssm";
+import { LayerVersion } from "aws-cdk-lib/aws-lambda";
 
 export interface ProductResources {
   create: lambda.NodejsFunction;
@@ -30,23 +32,34 @@ export class ProductsAppStack extends cdk.Stack {
     // Creating a dynamoDB table resource
     this.table = productTableDynamoDBFactory(this);
 
+    // Get parameter from AWS SSM
+    const productsDBLayerArn = StringParameter.valueForStringParameter(this, "ProductsDBLayerVersionArn");
+    const productsDBLayer = LayerVersion.fromLayerVersionArn(this, "ProductsDBLayerVersionArn", productsDBLayerArn);
+
+    const layers = [productsDBLayer];
+
     // Creating a lambda function resource
     this.resources = {
-      create: createProductLambdaFactory(this, {
-        PRODUCTS_TABLE_NAME: this.table.tableName,
-      }),
-      deleteById: deleteProductByIDLambdaFactory(this, {
-        PRODUCTS_TABLE_NAME: this.table.tableName,
-      }),
-      findAll: findAllProductsLambdaFactory(this, {
-        PRODUCTS_TABLE_NAME: this.table.tableName,
-      }),
-      findById: findProductByIDLambdaFactory(this, {
-        PRODUCTS_TABLE_NAME: this.table.tableName,
-      }),
-      updateById: updateProductByIDLambdaFactory(this, {
-        PRODUCTS_TABLE_NAME: this.table.tableName,
-      }),
+      create: createProductLambdaFactory(this,
+        { PRODUCTS_TABLE_NAME: this.table.tableName },
+        layers
+      ),
+      deleteById: deleteProductByIDLambdaFactory(this,
+        { PRODUCTS_TABLE_NAME: this.table.tableName },
+        layers
+      ),
+      findAll: findAllProductsLambdaFactory(this,
+        { PRODUCTS_TABLE_NAME: this.table.tableName },
+        layers
+      ),
+      findById: findProductByIDLambdaFactory(this,
+        { PRODUCTS_TABLE_NAME: this.table.tableName },
+        layers
+      ),
+      updateById: updateProductByIDLambdaFactory(this,
+        { PRODUCTS_TABLE_NAME: this.table.tableName },
+        layers
+      ),
     };
 
     // Set permissions
