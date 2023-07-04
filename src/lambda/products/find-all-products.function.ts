@@ -3,8 +3,14 @@ import {
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
+import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import { ProductRepository } from "/opt/nodejs/products-layer";
 
+const PRODUCTS_TABLE_NAME = process.env.PRODUCTS_TABLE_NAME!
 const PRODUCTS_LISTING_RESOURCE = "/product";
+
+const dbClient = new DocumentClient(); //Dynamo DB instance
+const repository = new ProductRepository(dbClient, PRODUCTS_TABLE_NAME);
 
 function checkResourceIsValid(httpMethod: string, resource: string): boolean {
   return httpMethod === "GET" && resource === PRODUCTS_LISTING_RESOURCE;
@@ -18,14 +24,15 @@ export async function handler(
   const { requestId } = requestContext;
   const { awsRequestId } = context;
 
+  console.log(`RequestID: ${requestId}, Lambda RequestID: ${awsRequestId}`);
+  
   const resourceIsValid = checkResourceIsValid(httpMethod, resource);
-
   if (resourceIsValid) {
-    console.log(`RequestID: ${requestId}, Lambda RequestID: ${awsRequestId}`);
+    const products = await repository.findAll();
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "GET: list all products" }),
+      body: JSON.stringify(products),
     };
   }
 
