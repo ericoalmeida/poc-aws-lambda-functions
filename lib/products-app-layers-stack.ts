@@ -10,7 +10,7 @@ export class ProductsAppLayersStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    this.productLayers = new LayerVersion(scope, "ProductsDBLayer", {
+    this.productLayers = new LayerVersion(this, "ProductsDBLayer", {
       code: Code.fromAsset("src/lambda/layers/products-layer"),
       compatibleRuntimes: [Runtime.NODEJS_16_X],
       layerVersionName: "ProductsDBLayer",
