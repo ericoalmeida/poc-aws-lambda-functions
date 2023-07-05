@@ -3,8 +3,14 @@ import {
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
+import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import { ProductRepository } from "/opt/nodejs/products-layer";
 
+const PRODUCT_TABLE_NAME = process.env.PRODUCT_TABLE_NAME!;
 const UPDATE_PRODUCT_RESOURCES = "/product/{id}";
+
+const dbClient = new DocumentClient();
+const repository = new ProductRepository(dbClient, PRODUCT_TABLE_NAME);
 
 function checkResourceIsValid(httpMethod: string, resource: string): boolean {
   return httpMethod === "DELETE" && resource === UPDATE_PRODUCT_RESOURCES;
@@ -18,18 +24,28 @@ export async function handler(
   const { requestId } = requestContext;
   const { awsRequestId } = context;
 
+  console.log(`RequestID: ${requestId}, Lambda RequestID: ${awsRequestId}`);
+
   const resourceIsValid = checkResourceIsValid(httpMethod, resource);
 
   if (resourceIsValid) {
-    const productId = pathParameters!.id;
+    try {
+      const productId = pathParameters!.id!;
 
-    console.log(`DELETE: /products/"${productId}"`);
-    console.log(`RequestID: ${requestId}, Lambda RequestID: ${awsRequestId}`);
+      const product = await repository.delete(productId);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: "Product deleted" }),
-    };
+      return {
+        statusCode: 200,
+        body: JSON.stringify(product),
+      };
+    } catch (error) {
+      console.error((<Error>error).message);
+
+      return {
+        statusCode: 404,
+        body: JSON.stringify((<Error>error).message),
+      };
+    }
   }
 
   return {
