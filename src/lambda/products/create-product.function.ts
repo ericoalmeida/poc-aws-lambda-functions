@@ -6,11 +6,11 @@ import {
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import { Product, ProductRepository } from "/opt/nodejs/products-layer";
 
-const PRODUCT_TABLE_NAME = process.env.PRODUCT_TABLE_NAME!;
+const PRODUCTS_TABLE_NAME = process.env.PRODUCTS_TABLE_NAME!;
 const CREATE_PRODUCT_RESOURCE = "/product";
 
 const dbClient = new DocumentClient();
-const repository = new ProductRepository(dbClient, PRODUCT_TABLE_NAME);
+const repository = new ProductRepository(dbClient, PRODUCTS_TABLE_NAME);
 
 function checkResourceIsValid(httpMethod: string, resource: string): boolean {
   return httpMethod === "POST" && resource === CREATE_PRODUCT_RESOURCE;
@@ -34,7 +34,7 @@ export async function handler(
     const product = await repository.create(requestData);
 
     return {
-      statusCode: 200,
+      statusCode: 201,
       body: JSON.stringify(product),
     };
   }

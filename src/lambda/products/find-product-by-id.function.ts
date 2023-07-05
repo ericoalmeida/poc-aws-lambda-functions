@@ -7,11 +7,11 @@ import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 import { ProductRepository } from "/opt/nodejs/products-layer";
 
-const PRODUCT_TABLE_NAME = process.env.PRODUCT_TABLE_NAME!;
+const PRODUCTS_TABLE_NAME = process.env.PRODUCTS_TABLE_NAME!;
 const PRODUCT_FINDING_RESOURCE = "/product/{id}";
 
 const dbClient = new DocumentClient();
-const repository = new ProductRepository(dbClient, PRODUCT_TABLE_NAME);
+const repository = new ProductRepository(dbClient, PRODUCTS_TABLE_NAME);
 
 function checkResourceIsInvalid(httpMethod: string, resource: string): boolean {
   return httpMethod === "GET" && resource === PRODUCT_FINDING_RESOURCE;

@@ -6,11 +6,11 @@ import {
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import { Product, ProductRepository } from "/opt/nodejs/products-layer";
 
-const PRODUCT_PRODUCT_NAME = process.env.PRODUCT_PRODUCT_NAME!;
+const PRODUCTS_TABLE_NAME = process.env.PRODUCTS_TABLE_NAME!;
 const UPDATE_PRODUCT_RESOURCES = "/product/{id}";
 
 const dbClient = new DocumentClient();
-const repository = new ProductRepository(dbClient, PRODUCT_PRODUCT_NAME);
+const repository = new ProductRepository(dbClient, PRODUCTS_TABLE_NAME);
 
 function checkResourceIsValid(httpMethod: string, resource: string): boolean {
   return httpMethod === "PUT" && resource === UPDATE_PRODUCT_RESOURCES;
