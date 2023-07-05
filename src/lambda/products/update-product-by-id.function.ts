@@ -29,14 +29,21 @@ export async function handler(
   const resourceIsValid = checkResourceIsValid(httpMethod, resource);
 
   if (resourceIsValid) {
-    const productId = pathParameters!.id!;
-    const requestData = JSON.parse(body!) as Product;
-    const product = await repository.update(productId, requestData);
+    try {
+      const productId = pathParameters!.id!;
+      const requestData = JSON.parse(body!) as Product;
+      const product = await repository.update(productId, requestData);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(product),
-    };
+      return {
+        statusCode: 200,
+        body: JSON.stringify(product),
+      };
+    } catch (ConditionalCheckFailedException) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({}),
+      };
+    }
   }
 
   return {
