@@ -10,7 +10,7 @@ import { findProductByIDLambdaFactory } from "./factories/find-product-by-id.lam
 import { productTableDynamoDBFactory } from "./factories/product-table.dynamodb.factory";
 import { updateProductByIDLambdaFactory } from "./factories/update-product.lambda.factory";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
-import { LayerVersion } from "aws-cdk-lib/aws-lambda";
+import { LayerVersion, Tracing } from "aws-cdk-lib/aws-lambda";
 
 export interface ProductResources {
   create: lambda.NodejsFunction;
@@ -33,32 +33,50 @@ export class ProductsAppStack extends cdk.Stack {
     this.table = productTableDynamoDBFactory(this);
 
     // Get parameter from AWS SSM
-    const productsDBLayerArn = StringParameter.valueForStringParameter(this, "ProductsDBLayerVersionArn");
-    const productsDBLayer = LayerVersion.fromLayerVersionArn(this, "ProductsDBLayerVersionArn", productsDBLayerArn);
+    const productsDBLayerArn = StringParameter.valueForStringParameter(
+      this,
+      "ProductsDBLayerVersionArn"
+    );
+    const productsDBLayer = LayerVersion.fromLayerVersionArn(
+      this,
+      "ProductsDBLayerVersionArn",
+      productsDBLayerArn
+    );
 
     const layers = [productsDBLayer];
+    const tracing = Tracing.ACTIVE; // Active AWS X-Ray Tracing
 
     // Creating a lambda function resource
     this.resources = {
-      create: createProductLambdaFactory(this,
+      create: createProductLambdaFactory(
+        this,
         { PRODUCTS_TABLE_NAME: this.table.tableName },
-        layers
+        layers,
+        tracing
       ),
-      deleteById: deleteProductByIDLambdaFactory(this,
+      deleteById: deleteProductByIDLambdaFactory(
+        this,
         { PRODUCTS_TABLE_NAME: this.table.tableName },
-        layers
+        layers,
+        tracing
       ),
-      findAll: findAllProductsLambdaFactory(this,
+      findAll: findAllProductsLambdaFactory(
+        this,
         { PRODUCTS_TABLE_NAME: this.table.tableName },
-        layers
+        layers,
+        tracing
       ),
-      findById: findProductByIDLambdaFactory(this,
+      findById: findProductByIDLambdaFactory(
+        this,
         { PRODUCTS_TABLE_NAME: this.table.tableName },
-        layers
+        layers,
+        tracing
       ),
-      updateById: updateProductByIDLambdaFactory(this,
+      updateById: updateProductByIDLambdaFactory(
+        this,
         { PRODUCTS_TABLE_NAME: this.table.tableName },
-        layers
+        layers,
+        tracing
       ),
     };
 
