@@ -4,7 +4,11 @@ import {
   Context,
 } from "aws-lambda";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import { captureAWS } from "aws-xray-sdk";
+
 import { ProductRepository } from "/opt/nodejs/products-layer";
+
+captureAWS(require("aws-sdk")); //Setting AWS XRAY to monitoring AWS SDK at all
 
 const PRODUCTS_TABLE_NAME = process.env.PRODUCTS_TABLE_NAME!;
 const UPDATE_PRODUCT_RESOURCES = "/product/{id}";
