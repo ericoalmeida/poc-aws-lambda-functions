@@ -43,38 +43,34 @@ export class ProductsAppStack extends cdk.Stack {
       productsDBLayerArn
     );
 
+    const environments = { PRODUCTS_TABLE_NAME: this.table.tableName };
     const layers = [productsDBLayer];
     const tracing = Tracing.ACTIVE; // Active AWS X-Ray Tracing
 
     // Creating a lambda function resource
     this.resources = {
-      create: createProductLambdaFactory(
-        this,
-        { PRODUCTS_TABLE_NAME: this.table.tableName },
-        layers,
-        tracing
-      ),
+      create: createProductLambdaFactory(this, environments, layers, tracing),
       deleteById: deleteProductByIDLambdaFactory(
         this,
-        { PRODUCTS_TABLE_NAME: this.table.tableName },
+        environments,
         layers,
         tracing
       ),
       findAll: findAllProductsLambdaFactory(
         this,
-        { PRODUCTS_TABLE_NAME: this.table.tableName },
+        environments,
         layers,
         tracing
       ),
       findById: findProductByIDLambdaFactory(
         this,
-        { PRODUCTS_TABLE_NAME: this.table.tableName },
+        environments,
         layers,
         tracing
       ),
       updateById: updateProductByIDLambdaFactory(
         this,
-        { PRODUCTS_TABLE_NAME: this.table.tableName },
+        environments,
         layers,
         tracing
       ),
