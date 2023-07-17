@@ -10,7 +10,11 @@ import { findProductByIDLambdaFactory } from "./factories/find-product-by-id.lam
 import { productTableDynamoDBFactory } from "./factories/product-table.dynamodb.factory";
 import { updateProductByIDLambdaFactory } from "./factories/update-product.lambda.factory";
 import { StringParameter } from "aws-cdk-lib/aws-ssm";
-import { LayerVersion, Tracing } from "aws-cdk-lib/aws-lambda";
+import {
+  LambdaInsightsVersion,
+  LayerVersion,
+  Tracing,
+} from "aws-cdk-lib/aws-lambda";
 
 export interface ProductResources {
   create: lambda.NodejsFunction;
@@ -46,33 +50,44 @@ export class ProductsAppStack extends cdk.Stack {
     const environments = { PRODUCTS_TABLE_NAME: this.table.tableName };
     const layers = [productsDBLayer];
     const tracing = Tracing.ACTIVE; // Active AWS X-Ray Tracing
+    const insights = LambdaInsightsVersion.VERSION_1_0_178_0; // Active AWS Cloud Watch lambda insights
 
     // Creating a lambda function resource
     this.resources = {
-      create: createProductLambdaFactory(this, environments, layers, tracing),
+      create: createProductLambdaFactory(
+        this,
+        environments,
+        layers,
+        tracing,
+        insights
+      ),
       deleteById: deleteProductByIDLambdaFactory(
         this,
         environments,
         layers,
-        tracing
+        tracing,
+        insights
       ),
       findAll: findAllProductsLambdaFactory(
         this,
         environments,
         layers,
-        tracing
+        tracing,
+        insights
       ),
       findById: findProductByIDLambdaFactory(
         this,
         environments,
         layers,
-        tracing
+        tracing,
+        insights
       ),
       updateById: updateProductByIDLambdaFactory(
         this,
         environments,
         layers,
-        tracing
+        tracing,
+        insights
       ),
     };
 
